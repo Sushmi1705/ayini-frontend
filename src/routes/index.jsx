@@ -44,6 +44,7 @@ const ChatApp = React.lazy(() => import("../pages/apps/Chat/"));
 // - ecommece pages
 const EcommerceDashboard = React.lazy(() => import("../pages/apps/Ecommerce/Dashboard/"));
 const EcommerceProducts = React.lazy(() => import("../pages/apps/Ecommerce/Products"));
+const EcommerceCategory = React.lazy(() => import("../pages/apps/Ecommerce/category"));
 const ProductDetails = React.lazy(() => import("../pages/apps/Ecommerce/ProductDetails"));
 const ProductEdit = React.lazy(() => import("../pages/apps/Ecommerce/ProductEdit"));
 const Customers = React.lazy(() => import("../pages/apps/Ecommerce/Customers"));
@@ -242,7 +243,12 @@ const ecommerceAppRoutes = {
     name: "Products",
     element: <EcommerceProducts />,
     route: PrivateRoute
-  }, {
+  },  {
+    path: "/apps/ecommerce/category",
+    name: "Category",
+    element: <EcommerceCategory />,
+    route: PrivateRoute
+  },{
     path: "/apps/ecommerce/product-details/:id",
     name: "Product Details",
     element: <ProductDetails />,

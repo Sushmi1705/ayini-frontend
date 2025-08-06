@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { Row, Col, Card, Button, Modal, Form } from "react-bootstrap";
 import "../../../assets/scss/product.scss";
 import PageTitle from "../../../components/PageTitle";
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+import { FaTrashAlt } from 'react-icons/fa'; // Using react-icons for trash icon
 import {
   getAllProducts,
   deleteProduct,
@@ -38,6 +41,9 @@ const Products = () => {
     image: "",
     shippingFee: "", // Add shipping fee for individual product
   });
+  const [sizes, setSizes] = useState([
+    { id: 1, sizeLabel: "1kg", price: "", quantity: "", isActive: true },
+  ]);
 
   const [showTaxModal, setShowTaxModal] = useState(false);
   const [taxRate, setTaxRate] = useState("");
@@ -54,6 +60,23 @@ const Products = () => {
     loadProducts();
     loadShippingSettings();
   }, []);
+
+  const handleSizeChange = (id, field, value) => {
+    setSizes((prevSizes) =>
+      prevSizes.map((size) =>
+        size.id === id ? { ...size, [field]: value } : size
+      )
+    );
+  };
+
+  const addSize = () => {
+    const newId = sizes.length ? sizes[sizes.length - 1].id + 1 : 1;
+    setSizes([...sizes, { id: newId, sizeLabel: "", price: "", quantity: "", isActive: true }]);
+  };
+
+  const removeSize = (id) => {
+    setSizes(sizes.filter((size) => size.id !== id));
+  };
 
   const loadProducts = async () => {
     try {
@@ -108,14 +131,25 @@ const Products = () => {
     setImageFile(null);
     setShippingFee("");
     setShowModal(true);
+    setSizes([{ id: 1, sizeLabel: "", price: "", quantity: "", isActive: true }]);
   };
 
   const handleShowEditModal = (product) => {
+    console.log('img---', product);
     setEditMode(true);
     setSelectedProduct(product);
     setImageFile(null);
     setShippingFee(product.shippingFee || "");
     setShowModal(true);
+    setImagePreview(product.image || "");
+
+    // Load sizes from product or fallback to default
+  if (product.sizes && product.sizes.length > 0) {
+    setSizes(product.sizes);
+  } else {
+    setSizes([{ id: 1, sizeLabel: "", price: "", quantity: "", isActive: true }]);
+  }
+
   };
 
   const handleCloseModal = () => setShowModal(false);
@@ -145,9 +179,10 @@ const Products = () => {
   const handleSave = async () => {
     let imageBlob = null;
     try {
-      let payload = { ...selectedProduct, shippingFee };
+      let payload = { ...selectedProduct, shippingFee, sizes };
       const formData = new FormData();
 
+      console.log('176--------',payload);
       // ✅ Fix: Stringify payload before appending
       formData.append("payload", JSON.stringify(payload));
 
@@ -266,6 +301,10 @@ const Products = () => {
         <Row>
           {products.map((product, index) => (
             <Col key={index} md={6} xl={4} className="cardList">
+              {/* <div className="product-actions">
+                    <button className="edit-btn" onClick={() => handleShowEditModal(product)}>✏️ Edit</button>
+                    <button className="delete-btn" onClick={handleDelete}>🗑️ Delete</button>
+                    </div> */}
               <Card className="product-box h-100" onClick={() => navigate(`/apps/ecommerce/product-details/${product.id}`)} style={{ cursor: "pointer" }}>
                 <Card.Body className="d-flex flex-column justify-content-between">
                   <div className="product-action text-end">
@@ -337,9 +376,32 @@ const Products = () => {
                     </h6>
                   </div>
 
-
                   <div className="product-footer mt-auto pt-2 border-top">
                     <p className="small text-muted mb-1">Support: {product.customerSupport?.phone}</p>
+                    <div className="product-actions">
+                      <button
+                        className="icon-btn edit-icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShowEditModal(product);
+                        }}
+                        title="Edit"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        className="icon-btn delete-icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(product.id);
+                        }}
+                        title="Delete"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+
+
                   </div>
                 </Card.Body>
               </Card>
@@ -553,25 +615,78 @@ const Products = () => {
             <div className="form-section">
               <h5 className="section-title">🚚 Price, Quantity & Shipping</h5>
 
-              <Form.Group>
-                <Form.Label>Price</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="price"
-                  value={selectedProduct.price}
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
+              {sizes.map(({ id, sizeLabel, price, quantity, isActive }) => (
+                <Card key={id} className="mb-2 shadow-sm compact-size-card">
+                  <Card.Body className="p-2">
+                    <Row className="align-items-center gx-2">
+                      <Col md={3} sm={4} xs={6}>
+                        <Form.Control
+                          size="sm"
+                          type="text"
+                          placeholder="Size (e.g. 1kg)"
+                          value={sizeLabel}
+                          onChange={(e) => handleSizeChange(id, "sizeLabel", e.target.value)}
+                        />
+                      </Col>
 
-              <Form.Group>
-                <Form.Label>Quantity</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="quantity"
-                  value={selectedProduct.quantity}
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
+                      <Col md={3} sm={3} xs={6}>
+                        <Form.Control
+                          size="sm"
+                          type="number"
+                          min="0"
+                          placeholder="Price"
+                          value={price}
+                          onChange={(e) => handleSizeChange(id, "price", e.target.value)}
+                        />
+                      </Col>
+
+                      <Col md={3} sm={3} xs={6}>
+                        <Form.Control
+                          size="sm"
+                          type="number"
+                          min="0"
+                          placeholder="Qty"
+                          value={quantity}
+                          onChange={(e) => handleSizeChange(id, "quantity", e.target.value)}
+                        />
+                      </Col>
+
+                      <Col md={1} sm={2} xs={4} className="d-flex justify-content-center">
+                        <Form.Check
+                          size="sm"
+                          type="checkbox"
+                          checked={isActive}
+                          onChange={(e) => handleSizeChange(id, "isActive", e.target.checked)}
+                          aria-label="Active"
+                          className="m-auto"
+                        />
+                      </Col>
+
+                      <Col md={1} sm={3} xs={6} className="text-md-end mt-2 mt-md-0">
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id={`tooltip-remove-${id}`}>Remove</Tooltip>}
+                        >
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-danger p-0"
+                            onClick={() => removeSize(id)}
+                            aria-label="Remove size"
+                            style={{ fontSize: '1.2rem' }}
+                          >
+                            <FaTrashAlt />
+                          </Button>
+                        </OverlayTrigger>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+              ))}
+
+              <Button variant="primary" onClick={addSize} className="mb-3">
+                Add Size
+              </Button>
 
               <Form.Group>
                 <Form.Label>Shipping Fee</Form.Label>
@@ -595,7 +710,6 @@ const Products = () => {
                   />
                 )}
               </Form.Group>
-
             </div>
           </Form>
 
@@ -607,11 +721,11 @@ const Products = () => {
           <Button variant="primary" onClick={handleSave}>
             {editMode ? "Update" : "Add"}
           </Button>
-          {imageFile && (
+          {/* {imageFile && (
             <Button variant="info" onClick={handleImageUpload}>
               Upload Image
             </Button>
-          )}
+          )} */}
         </Modal.Footer>
       </Modal >
 

@@ -66,12 +66,12 @@ const MENU_ITEMS = [{
   isTitle: false,
   icon: FiShoppingCart,
   children: [
-  //   {
-  //   key: "ecommerce-dashboard",
-  //   label: "Dashboard",
-  //   url: "/apps/ecommerce/dashboard",
-  //   parentKey: "apps-ecommerce"
-  // }, 
+    {
+    key: "ecommerce-category",
+    label: "Category",
+    url: "/apps/ecommerce/category",
+    parentKey: "apps-ecommerce"
+  }, 
   {
     key: "ecommerce-products",
     label: "Products",

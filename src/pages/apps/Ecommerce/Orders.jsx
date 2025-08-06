@@ -9,7 +9,7 @@ import { getAllOrders, deleteOrder } from "../../../services/orderService";
 
 const OrderColumn = ({ row }) => (
   <Link to={`/apps/ecommerce/order/${row.original.id}`} className="text-body fw-bold">
-    #BM{row.original.order_id}
+    {row.original.id}
   </Link>
 );
 
@@ -121,6 +121,7 @@ const Orders = () => {
   const loadOrders = async () => {
     try {
       const data = await getAllOrders();
+      console.log('124--------', data);
       setOrders(data);
     } catch (err) {
       console.error("Error loading orders:", err.message);
@@ -147,7 +148,7 @@ const Orders = () => {
     const exportData = orders.map((order) => {
       const { date, time } = formatDateAndTime(order.createdAt);
       return {
-        "Order ID": `#BM${order.order_id}`,
+        "Order ID": order.id,
         "Date": date,
         "Time": time,
         "Payment Status": order.status,
@@ -166,7 +167,7 @@ const Orders = () => {
 
   const columns = [
     { Header: "Order ID", accessor: "order_id", Cell: OrderColumn },
-    { Header: "Products", accessor: "product_img", Cell: ProductsColumn },
+    // { Header: "Products", accessor: "product_img", Cell: ProductsColumn },
     { Header: "Date", accessor: "createdAt", Cell: OrderDateColumn },
     { Header: "Payment Status", accessor: "status", Cell: PaymentStatusColumn },
     { Header: "Total", accessor: "total" },
