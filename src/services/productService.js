@@ -1,5 +1,6 @@
 
-const API_URL = 'http://localhost:5000/product';
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/product`;
+
 
 export const getAllProducts = async () => {
   const response = await fetch(API_URL);

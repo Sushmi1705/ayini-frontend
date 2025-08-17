@@ -1,10 +1,9 @@
 // services/dashboardService.js
 import axios from "axios";
-
-const API_BASE_URL = "http://localhost:5000";
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 
 export const fetchDashboardOverview = async () => {
-    const response = await fetch(`${API_BASE_URL}/dashboard`, {
+    const response = await fetch(`${API_URL}/dashboard`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -14,7 +13,7 @@ export const fetchDashboardOverview = async () => {
 };
 
 export const getRecentOrders = async () => {
-    const response = await fetch(`${API_BASE_URL}/dashboard/recent-orders`, {
+    const response = await fetch(`${API_URL}/dashboard/recent-orders`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -24,7 +23,7 @@ export const getRecentOrders = async () => {
 };
 
 export const getRecentPayments  = async () => {
-    const response = await fetch(`${API_BASE_URL}/dashboard/recent-payments`, {
+    const response = await fetch(`${API_URL}/dashboard/recent-payments`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -34,7 +33,7 @@ export const getRecentPayments  = async () => {
 };
 
 export const getSalesAnalytics = async () => {
-    const response = await fetch(`${API_BASE_URL}/dashboard/sales-analytics`, {
+    const response = await fetch(`${API_URL}/dashboard/sales-analytics`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

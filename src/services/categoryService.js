@@ -1,5 +1,5 @@
 
-const API_URL = 'http://localhost:5000/category';
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/category`;
 
 export const getCategory = async () => {
   const response = await fetch(API_URL);
