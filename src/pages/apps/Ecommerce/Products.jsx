@@ -57,8 +57,8 @@ const Products = () => {
   });
 
   useEffect(() => {
-    loadProducts();
     loadShippingSettings();
+    loadProducts();
   }, []);
 
   const handleSizeChange = (id, field, value) => {

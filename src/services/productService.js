@@ -58,24 +58,9 @@ export const getTax = async () => {
   };
 
   export async function getShippingSettings() {
-    try {
-      const response = await fetch(`${API_URL}/getShipping`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      return data; // Assumes API returns JSON like: { productShippingFees: [], shippingCaps: {...} }
-    } catch (error) {
-      console.error('Error fetching shipping settings:', error);
-      throw error;
-    }
+    const response = await fetch(`${API_URL}/getShipping`);
+    if (!response.ok) throw new Error('Failed to fetch shipping');
+    return response.json();
   }
 
   export async function setShippingSettings(settings) {

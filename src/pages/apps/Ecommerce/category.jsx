@@ -17,7 +17,9 @@ import {
 
 import {
     addCategory, // Ensure this function is implemented
-    getCategory
+    getCategory,
+    updateCategory,
+    deleteCategory
   } from "../../../services/categoryService";
 
 // ✅ Add truncate here before the component
@@ -80,7 +82,7 @@ const Category = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure to delete this product?")) return;
     try {
-      await deleteProduct(id);
+      await deleteCategory(id);
       loadProducts();
     } catch (error) {
       console.error("Error deleting product:", error.message);
@@ -152,7 +154,7 @@ const Category = () => {
       }
 
       if (editMode) {
-        await updateProduct(selectedProduct.id, formData); // PUT with FormData
+        await updateCategory(selectedProduct.id, formData); // PUT with FormData
       } else {
         await addCategory(formData); // POST with FormData
       }

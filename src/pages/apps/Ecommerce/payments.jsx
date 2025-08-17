@@ -41,7 +41,7 @@ const StatusColumn = ({ row }) => {
   return (
     <span
       className={classNames("badge", {
-        "bg-soft-success text-success": status === "Completed",
+        "bg-soft-success text-success": status === "Paid",
         "bg-soft-warning text-warning": status === "Pending",
         "bg-soft-danger text-danger": status === "Failed",
       })}
@@ -74,7 +74,7 @@ const Payments = () => {
       return {
         "Transaction ID": item.transactionId,
         "Order ID": item.orderId,
-        "User ID": item.userId,
+        // "User ID": item.userId,
         "Email": item.email,
         "Mobile": item.mobile,
         "Amount": item.amount,
@@ -96,7 +96,7 @@ const Payments = () => {
   const columns = [
     { Header: "Transaction ID", accessor: "transactionId" },
     { Header: "Order ID", accessor: "orderId" },
-    { Header: "User ID", accessor: "userId" },
+    // { Header: "User ID", accessor: "userId" },
     { Header: "Email", accessor: "email" },
     { Header: "Mobile", accessor: "mobile" },
     { Header: "Amount", accessor: "amount" },

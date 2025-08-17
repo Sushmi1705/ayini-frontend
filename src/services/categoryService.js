@@ -22,6 +22,19 @@ export const addCategory = async (formData) => {
   return response.json();
 };
 
+export const updateCategory = async (id, formData) => {
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to update category");
+    }
+  
+    return response.json();
+  };
+  
 // export const updateProduct = async (id, formData) => {
 //   const response = await fetch(`${API_URL}/${id}`, {
 //     method: 'PUT',
@@ -32,13 +45,13 @@ export const addCategory = async (formData) => {
 // };
 
 
-// export const deleteProduct = async (id) => {
-//   const response = await fetch(`${API_URL}/${id}`, {
-//     method: 'DELETE',
-//   });
-//   if (!response.ok) throw new Error('Failed to delete product');
-//   return response.json();
-// };
+export const deleteCategory = async (id) => {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete product');
+  return response.json();
+};
 
 // ✅ Tax APIs
 // export const getTax = async () => {
