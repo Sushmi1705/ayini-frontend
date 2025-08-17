@@ -1,4 +1,5 @@
-const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/user`;
+// const API_URL = "http://localhost:5000/user";
+const API_URL = "https://ayini-backend.onrender.com/user";
 
 // Get all customers
 export const getAllCustomers = async () => {

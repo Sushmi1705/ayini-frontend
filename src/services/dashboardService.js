@@ -1,6 +1,7 @@
 // services/dashboardService.js
 import axios from "axios";
-const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
+// const API_URL = "http://localhost:5000";
+const API_URL = "https://ayini-backend.onrender.com";
 
 export const fetchDashboardOverview = async () => {
     const response = await fetch(`${API_URL}/dashboard`, {

@@ -1,4 +1,6 @@
-const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/order`;
+
+// const API_URL = "http://localhost:5000/order";
+const API_URL = "https://ayini-backend.onrender.com/order";
 
 export const getAllOrders = async () => {
   const res = await fetch(API_URL);
