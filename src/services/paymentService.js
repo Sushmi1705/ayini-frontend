@@ -1,5 +1,5 @@
-// const API_URL = "http://localhost:5000/adminPayment";
-const API_URL = "https://ayini-backend.onrender.com/adminPayment";
+const API_URL = "http://localhost:5000/adminPayment";
+// const API_URL = "https://ayini-backend.onrender.com/adminPayment";
 
 export const getAllPayments = async () => {
   const response = await fetch(API_URL);

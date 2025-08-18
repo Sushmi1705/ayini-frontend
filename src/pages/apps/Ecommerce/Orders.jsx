@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Row, Col, Card, Button, Nav, Tab } from "react-bootstrap";
+import { Row, Col, Card, Button, Nav, Tab, Modal } from "react-bootstrap";
 import classNames from "classnames";
 import * as XLSX from "xlsx";
 import PageTitle from "../../../components/PageTitle";
 import Table from "../../../components/Table";
-import { getAllOrders, deleteOrder, markOrderAsSent, markOrderAsPaid } from "../../../services/orderService"; // <-- added markOrderAsPaid
+import "../../../assets/scss/orders.scss";
+
+import { getAllOrders, deleteOrder, markOrderAsSent, markOrderAsPaid, getOrderById } from "../../../services/orderService"; // <-- added markOrderAsPaid
 
 const CustomerNameColumn = ({ row }) => {
   const billing = row.original.billingDetails || {};
@@ -22,7 +24,10 @@ const formatDateAndTime = (timestamp) => {
     month: "short",
     year: "numeric",
   });
-  const time = dateObj.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  const time = dateObj.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   return { date, time };
 };
 
@@ -113,6 +118,14 @@ const PaymentPendingActionColumn = ({ row, refresh }) => {
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
 
   const loadOrders = async () => {
     try {
@@ -123,9 +136,17 @@ const Orders = () => {
     }
   };
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
+  const handleRowClick = (orderId) => {
+    console.log("Clicked Order ID:", orderId);
+
+    const order = orders.find((o) => o.id === orderId); // find order from already fetched data
+    if (order) {
+      setSelectedOrder(order);
+      setShowModal(true);
+    } else {
+      console.error("Order not found in state!");
+    }
+  };
 
   const handleExport = () => {
     if (!orders.length) return;
@@ -172,6 +193,7 @@ const Orders = () => {
     { text: "50", value: 50 },
   ];
 
+  console.log('193-----', selectedOrder);
   return (
     <>
       <PageTitle
@@ -209,28 +231,216 @@ const Orders = () => {
 
                 <Tab.Content className="mt-3">
                   <Tab.Pane eventKey="pending">
-                    <Table columns={columns} data={pendingOrders} pageSize={10} sizePerPageList={sizePerPageList} />
+                    <Table
+                      columns={[
+                        ...columns.filter(c => c.accessor !== "action"),
+                        {
+                          Header: "Action",
+                          accessor: "action",
+                          Cell: (props) => (
+                            <>
+                              <PaymentPendingActionColumn {...props} refresh={loadOrders} />
+
+                              {/* Your existing pending actions */}
+                              <Button
+                                variant="link"
+                                size="sm"
+                                onClick={() => handleRowClick(props.row.original.id)}
+                              >
+                                View Details
+                              </Button>
+                            </>
+                          ),
+                        },
+                      ]}
+                      data={pendingOrders}
+                      pageSize={10}
+                      sizePerPageList={sizePerPageList}
+                    />
                   </Tab.Pane>
                   <Tab.Pane eventKey="sent">
-                    <Table columns={columns} data={sentOrders} pageSize={10} sizePerPageList={sizePerPageList} />
+                    <Table
+                      columns={[
+                        ...columns.filter(c => c.accessor !== "action"),
+                        {
+                          Header: "Action",
+                          accessor: "action",
+                          Cell: (props) => (
+                            <>
+                              {/* Your existing sent actions */}
+                              <Button
+                                variant="link"
+                                size="sm"
+                                onClick={() => handleRowClick(props.row.original.id)}
+                              >
+                                View Details
+                              </Button>
+                            </>
+                          ),
+                        },
+                      ]}
+                      data={sentOrders}
+                      pageSize={10}
+                      sizePerPageList={sizePerPageList}
+                    />
                   </Tab.Pane>
                   <Tab.Pane eventKey="paymentPending">
                     <Table
                       columns={[
                         ...columns.filter(c => c.accessor !== "action"),
-                        { Header: "Action", accessor: "action", Cell: (props) => <PaymentPendingActionColumn {...props} refresh={loadOrders} /> }
+                        {
+                          Header: "Action",
+                          accessor: "action",
+                          Cell: (props) => (
+                            <>
+                              {/* Existing button */}
+                              <PaymentPendingActionColumn {...props} refresh={loadOrders} />
+
+                              {/* New View Details button */}
+                              <Button
+                                variant="link"
+                                size="sm"
+                                onClick={() => handleRowClick(props.row.original.id)}
+                              >
+                                View Details
+                              </Button>
+                            </>
+                          ),
+                        },
                       ]}
                       data={paymentPendingOrders}
                       pageSize={10}
                       sizePerPageList={sizePerPageList}
                     />
                   </Tab.Pane>
+
                 </Tab.Content>
               </Tab.Container>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+      {/* Order Details Popup */}
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Order Details</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          {selectedOrder && (
+            <div className="order-details">
+              <Row>
+                {/* LEFT: Order Summary */}
+                <Col md={5}>
+                  <h5 className="mb-3">Order Info</h5>
+                  <p><strong>Order ID:</strong> {selectedOrder.id}</p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {formatDateAndTime(selectedOrder.createdAt).date}{" "}
+                    {formatDateAndTime(selectedOrder.createdAt).time}
+                  </p>
+                  <p>
+                    <strong>Customer:</strong>{" "}
+                    {`${selectedOrder.billingDetails?.firstName || ""} ${selectedOrder.billingDetails?.lastName || ""}`}
+                  </p>
+                  <p><strong>Email:</strong> {selectedOrder.billingDetails?.email || "N/A"}</p>
+                  <p><strong>Phone:</strong> {selectedOrder.billingDetails?.phone || "N/A"}</p>
+                  <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</p>
+                  <p><strong>Status:</strong> {selectedOrder.status}</p>
+                  <p><strong>Order Status:</strong> {selectedOrder.order_status}</p>
+                </Col>
+
+                {/* RIGHT: Cart Items */}
+                <Col md={7}>
+                  <h5 className="mb-3">Items</h5>
+                  <table className="table table-sm align-middle">
+                    <thead>
+                      <tr>
+                        <th>Image</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedOrder.items?.map((item, i) => {
+                        const cartItem = selectedOrder.cart?.find(c => c.productId === item.productId);
+                        const quantity = cartItem?.quantity || 0;
+                        const price = Number(item.price) || 0;
+                        const total = quantity * price;
+
+                        return (
+                          <tr key={i}>
+                            <td>
+                              <img
+                                src={item.image || "/placeholder.png"}
+                                alt={item.name}
+                                width="40"
+                                height="40"
+                              />
+                            </td>
+                            <td>{item.name}</td>
+                            <td>{quantity}</td>
+                            <td>{price.toFixed(2)} {selectedOrder.currency || "₹"}</td>
+                            <td>{total.toFixed(2)} {selectedOrder.currency || "₹"}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+
+                  {/* Totals */}
+                  <div className="mt-3">
+                    <table className="table table-borderless">
+                      <tbody>
+                        <tr>
+                          <td><strong>Subtotal:</strong></td>
+                          <td className="text-end">
+                            {selectedOrder.cartSubtotal || "0.00"} {selectedOrder.currency || "₹"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><strong>Shipping:</strong></td>
+                          <td className="text-end">
+                            {selectedOrder.shipping?.toFixed(2) || "0.00"} {selectedOrder.currency || "₹"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><strong>Tax:</strong></td>
+                          <td className="text-end">
+                            {selectedOrder.vat || "0.00"} {selectedOrder.currency || "₹"}
+                          </td>
+                        </tr>
+                        <tr className="fw-bold border-top">
+                          <td><strong>Total:</strong></td>
+                          <td className="text-end">
+                            {selectedOrder.total || "0.00"} {selectedOrder.currency || "₹"}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+          )}
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
+
     </>
   );
 };

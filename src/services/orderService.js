@@ -1,11 +1,24 @@
 
-// const API_URL = "http://localhost:5000/order";
-const API_URL = "https://ayini-backend.onrender.com/order";
+const API_URL = "http://localhost:5000/order";
+// const API_URL = "https://ayini-backend.onrender.com/order";
 
 export const getAllOrders = async () => {
   const res = await fetch(API_URL);
   if (!res.ok) throw new Error("Failed to fetch orders");
   return await res.json();
+};
+
+export const getOrdersByUserId = async (userId) => {
+  try {
+    const response = await fetch(`${API_URL}/user/${userId}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch orders");
+    }
+    return await response.json(); // expected array of orders
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    return [];
+  }
 };
 
 export const markOrderAsPaid = async (id) => {

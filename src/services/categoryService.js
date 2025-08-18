@@ -1,6 +1,6 @@
 
-// const API_URL = "http://localhost:5000/category";
-const API_URL = "https://ayini-backend.onrender.com/category";
+const API_URL = "http://localhost:5000/category";
+// const API_URL = "https://ayini-backend.onrender.com/category";
 
 
 export const getCategory = async () => {

@@ -1,5 +1,5 @@
-// const API_URL = "http://localhost:5000/user";
-const API_URL = "https://ayini-backend.onrender.com/user";
+const API_URL = "http://localhost:5000/user";
+// const API_URL = "https://ayini-backend.onrender.com/user";
 
 // Get all customers
 export const getAllCustomers = async () => {
