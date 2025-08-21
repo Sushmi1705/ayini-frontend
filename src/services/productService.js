@@ -1,6 +1,6 @@
 
-const API_URL = "http://localhost:5000/product";
-// const API_URL = "https://ayini-backend.onrender.com/product";
+// const API_URL = "http://localhost:5000/product";
+const API_URL = "https://ayini-backend.onrender.com/product";
 
 
 export const getAllProducts = async () => {
