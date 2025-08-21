@@ -239,7 +239,7 @@ const Orders = () => {
                           accessor: "action",
                           Cell: (props) => (
                             <>
-                              <PaymentPendingActionColumn {...props} refresh={loadOrders} />
+                              <ActionColumn {...props} refresh={loadOrders} />
 
                               {/* Your existing pending actions */}
                               <Button
