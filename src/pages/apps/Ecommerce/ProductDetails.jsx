@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById } from "../../../services/productService";
@@ -8,6 +7,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -49,7 +49,26 @@ const ProductDetails = () => {
 
           <p><strong>Quantity:</strong> {product.quantity} pcs</p>
           <p><strong>Shipping Fee:</strong> ₹{product.shippingFee}</p>
-          <p><strong>Price:</strong> ₹{product.price}</p>
+
+          {/* --- Variant Dropdown and Price --- */}
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="variant-row" style={{ display: "flex", alignItems: "center", gap: "12px", margin: "12px 0" }}>
+              <select
+                value={selectedVariant}
+                onChange={e => setSelectedVariant(Number(e.target.value))}
+                style={{ minWidth: 80, padding: "4px 8px" }}
+              >
+                {product.sizes.map((variant, idx) => (
+                  <option key={idx} value={idx}>
+                    {variant.sizeLabel}
+                  </option>
+                ))}
+              </select>
+              <h5 style={{ margin: 0, color: "#28a745" }}>
+                ₹{product.sizes[selectedVariant] ? parseFloat(product.sizes[selectedVariant].price) : "N/A"}
+              </h5>
+            </div>
+          )}
 
           <h4>Customer Support</h4>
           <p><strong>Email:</strong> {product.customerSupport?.email}</p>

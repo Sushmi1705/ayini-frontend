@@ -33,6 +33,7 @@ const Products = () => {
   const [shippingFee, setShippingFee] = useState(""); // Shipping fee for each product
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // new state
+  const [selectedVariants, setSelectedVariants] = useState({});
   const [selectedProduct, setSelectedProduct] = useState({
     name: "",
     price: "",
@@ -144,11 +145,11 @@ const Products = () => {
     setImagePreview(product.image || "");
 
     // Load sizes from product or fallback to default
-  if (product.sizes && product.sizes.length > 0) {
-    setSizes(product.sizes);
-  } else {
-    setSizes([{ id: 1, sizeLabel: "", price: "", quantity: "", isActive: true }]);
-  }
+    if (product.sizes && product.sizes.length > 0) {
+      setSizes(product.sizes);
+    } else {
+      setSizes([{ id: 1, sizeLabel: "", price: "", quantity: "", isActive: true }]);
+    }
 
   };
 
@@ -182,7 +183,7 @@ const Products = () => {
       let payload = { ...selectedProduct, shippingFee, sizes };
       const formData = new FormData();
 
-      console.log('176--------',payload);
+      console.log('176--------', payload);
       // ✅ Fix: Stringify payload before appending
       formData.append("payload", JSON.stringify(payload));
 
@@ -371,9 +372,37 @@ const Products = () => {
                       <strong>Shipping:</strong> ₹{product.shippingFee}
                     </p>
 
-                    <h6 className="mt-2">
+                    {/* <h6 className="mt-2">
                       ₹{parseFloat(product.price) + calculateShipping(product)}
-                    </h6>
+                    </h6> */}
+
+                    <div className="mt-2 d-flex align-items-center">
+                      <select
+                        value={selectedVariants[product.id] || 0}
+                        onClick={e => e.stopPropagation()}
+                        onChange={e => {
+                          e.stopPropagation();
+                          setSelectedVariants(prev => ({
+                            ...prev,
+                            [product.id]: Number(e.target.value)
+                          }));
+                        }}
+                        className="me-2"
+                        style={{ width: "auto" }}
+                      >
+                        {product.sizes.map((variant, index) => (
+                          <option key={index} value={index}>
+                            {variant.sizeLabel}
+                          </option>
+                        ))}
+                      </select>
+                      <h6 className="mb-2">
+                        ₹{product.sizes[selectedVariants[product.id] || 0]
+                          ? parseFloat(product.sizes[selectedVariants[product.id] || 0].price)
+                          : 'N/A'}
+                      </h6>
+                    </div>
+
                   </div>
 
                   <div className="product-footer mt-auto pt-2 border-top">

@@ -143,4 +143,34 @@
     }
   }
 
+  .variant-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 16px 0;
+  
+    select {
+      min-width: 90px;
+      padding: 6px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 15px;
+      background: #fff;
+  
+      &:focus {
+        outline: none;
+        border-color: #28a745;
+        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.15);
+      }
+    }
+  
+    h5 {
+      margin: 0;
+      color: #28a745;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: 0.5px;
+    }
+  }
+
   
