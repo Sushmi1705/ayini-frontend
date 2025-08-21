@@ -365,9 +365,9 @@ const Products = () => {
                     </div>
 
                     {/* Basic Info */}
-                    <p className="text-muted mb-1 small">
+                    {/* <p className="text-muted mb-1 small">
                       <strong>Stocks:</strong> {product.quantity} pcs
-                    </p>
+                    </p> */}
                     <p className="text-muted mb-1 small">
                       <strong>Shipping:</strong> ₹{product.shippingFee}
                     </p>

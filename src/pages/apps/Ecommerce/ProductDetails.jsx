@@ -47,7 +47,7 @@ const ProductDetails = () => {
 
           <p><strong>Nutrition Note:</strong> {product.nutritionNote}</p>
 
-          <p><strong>Quantity:</strong> {product.quantity} pcs</p>
+          {/* <p><strong>Quantity:</strong> {product.quantity} pcs</p> */}
           <p><strong>Shipping Fee:</strong> ₹{product.shippingFee}</p>
 
           {/* --- Variant Dropdown and Price --- */}
@@ -69,6 +69,13 @@ const ProductDetails = () => {
               </h5>
             </div>
           )}
+
+          <p>
+            <strong>Stocks:</strong>{" "}
+            {product.sizes && product.sizes[selectedVariant]
+              ? product.sizes[selectedVariant].quantity
+              : "N/A"} pcs
+          </p>
 
           <h4>Customer Support</h4>
           <p><strong>Email:</strong> {product.customerSupport?.email}</p>
