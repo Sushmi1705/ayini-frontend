@@ -1,17 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-// components
-import TopbarSearch from "@/components/TopbarSearch";
 import MaximizeScreen from "@/components/MaximizeScreen";
-import AppsDropdown from "@/components/AppsDropdown/";
-import LanguageDropdown from "@/components/LanguageDropdown";
-import NotificationDropdown from "@/components/NotificationDropdown";
 import ProfileDropdown from "@/components/ProfileDropdown";
-import CreateNew from "@/components/CreateNew";
-import MegaMenu from "@/components/MegaMenu";
 import profilePic from "@/assets/images/users/user-1.jpg";
-import avatar4 from "@/assets/images/users/user-4.jpg";
 import logoSm from "@/assets/images/logo-sm.png";
 import logoDark from "@/assets/images/logo-dark.png";
 import logoDark2 from "@/assets/images/logo-dark-2.png";
@@ -19,117 +11,15 @@ import logoLight from "@/assets/images/logo-light.png";
 import logoLight2 from "@/assets/images/logo-light-2.png";
 import { useViewport } from "@/hooks/useViewPort";
 import { useLayoutContext } from "@/context/useLayoutContext.jsx";
+import { useAuthContext } from "@/context/useAuthContext.jsx";
 import { toggleDocumentAttribute } from "@/utils";
-// get the notifications
-const Notifications = [{
-  id: 1,
-  text: "Cristina Pride",
-  subText: "Hi, How are you? What about our next meeting",
-  avatar: profilePic
-}, {
-  id: 2,
-  text: "Caleb Flakelar commented on Admin",
-  subText: "1 min ago",
-  icon: "mdi mdi-comment-account-outline",
-  bgColor: "primary"
-}, {
-  id: 3,
-  text: "Karen Robinson",
-  subText: "Wow ! this admin looks good and awesome design",
-  avatar: avatar4
-}, {
-  id: 4,
-  text: "New user registered.",
-  subText: "5 hours ago",
-  icon: "mdi mdi-account-plus",
-  bgColor: "warning"
-}, {
-  id: 5,
-  text: "Caleb Flakelar commented on Admin",
-  subText: "1 min ago",
-  icon: "mdi mdi-comment-account-outline",
-  bgColor: "info"
-}, {
-  id: 6,
-  text: "Carlos Crouch liked Admin",
-  subText: "13 days ago",
-  icon: "mdi mdi-heart",
-  bgColor: "secondary"
-}];
 
 // get the profilemenu
 const ProfileMenus = [
-//   {
-//   label: "My Account",
-//   icon: "fe-user",
-//   redirectTo: "#"
-// }, {
-//   label: "Settings",
-//   icon: "fe-settings",
-//   redirectTo: "#"
-// }, {
-//   label: "Lock Screen",
-//   icon: "fe-lock",
-//   redirectTo: "/auth/lock-screen"
-// }, 
 {
   label: "Logout",
   icon: "fe-log-out",
   redirectTo: "/auth/logout"
-}];
-
-// dummy search results
-const SearchResults = [{
-  id: 1,
-  title: "Analytics Report",
-  icon: "uil-notes",
-  redirectTo: "#"
-}, {
-  id: 2,
-  title: "How can I help you?",
-  icon: "uil-life-ring",
-  redirectTo: "#"
-}, {
-  id: 3,
-  icon: "uil-cog",
-  title: "User profile settings",
-  redirectTo: "#"
-}];
-const otherOptions = [{
-  id: 1,
-  label: "New Projects",
-  icon: "fe-briefcase"
-}, {
-  id: 2,
-  label: "Create Users",
-  icon: "fe-user"
-}, {
-  id: 3,
-  label: "Revenue Report",
-  icon: "fe-bar-chart-line-"
-}, {
-  id: 4,
-  label: "Settings",
-  icon: "fe-settings"
-}, {
-  id: 4,
-  label: "Help & Support",
-  icon: "fe-headphones"
-}];
-
-// get mega-menu options
-const MegaMenuOptions = [{
-  id: 1,
-  title: "UI Components",
-  menuItems: ["Widgets", "Nestable List", "Range Sliders", "Masonry Items", "Sweet Alerts", "Treeview Page", "Tour Page"]
-}, {
-  id: 2,
-  title: "Applications",
-  menuItems: ["eCommerce Pages", "CRM Pages", "Email", "Calendar", "Team Contacts", "Task Board", "Email Templates"]
-}, {
-  id: 3,
-  title: "Extra Pages",
-  menuItems: ["Left Sidebar with User", "Menu Collapsed", "Small Left Sidebar", "New Header Style", "Search Result", "Gallery Pages", "Maintenance & Coming Soon"]
 }];
 const Topbar = ({
   hideLogo,
@@ -144,8 +34,11 @@ const Topbar = ({
     changeMenuSize,
     themeCustomizer
   } = useLayoutContext();
+  const { user } = useAuthContext();
   const navbarCssClasses = navCssClasses || "";
   const containerCssClasses = !hideLogo ? "container-fluid" : "";
+  const adminName = user?.name || "Ajith";
+  const adminRole = user?.role ? `${user.role}` : "Admin";
 
   /**
    * Toggle the leftmenu when having mobile screen
@@ -223,36 +116,25 @@ const Topbar = ({
                             <i className="mdi mdi-menu" />
                         </button>
 
-                        <div className="dropdown d-none d-xl-block">
-                            <CreateNew otherOptions={otherOptions} />
-                        </div>
-
-                        <div className="dropdown dropdown-mega d-none d-xl-block">
-                            <MegaMenu subMenus={MegaMenuOptions} />
+                        <div className="admin-topbar-intro d-none d-lg-flex flex-column ms-2">
+                            <span className="admin-topbar-label">Sri Ayini Commerce Console</span>
+                            <span className="admin-topbar-subtitle">Single-admin control center for orders, products, and customers</span>
                         </div>
                     </div>
 
                     <ul className="topbar-menu d-flex align-items-center">
-                        {/* <li className="app-search dropdown d-none d-lg-block">
-                            <TopbarSearch items={SearchResults} />
-                        </li> */}
-                        {/* <li className="dropdown d-inline-block d-lg-none">
-                         <SearchDropdown />
-                         </li> */}
                         <li className="dropdown d-none d-lg-inline-block">
                             <MaximizeScreen />
                         </li>
-                        {/* <li className="dropdown d-none d-lg-inline-block topbar-dropdown">
-                            <AppsDropdown />
-                        </li> */}
-                        {/* <li className="dropdown d-none d-lg-inline-block topbar-dropdown">
-                            <LanguageDropdown />
-                        </li> */}
-                        <li className="dropdown notification-list">
-                            <NotificationDropdown notifications={Notifications} />
+
+                        <li className="d-none d-md-inline-flex align-items-center">
+                            <span className="admin-status-pill">
+                              <span className="admin-status-dot"></span>
+                              {adminRole}
+                            </span>
                         </li>
                         <li className="dropdown">
-                            <ProfileDropdown profilePic={profilePic} menuItems={ProfileMenus} username={"Geneva"} userTitle={"Founder"} />
+                            <ProfileDropdown profilePic={profilePic} menuItems={ProfileMenus} username={adminName} userTitle={"Single Admin"} />
                         </li>
                         <li>
                             <button className="nav-link dropdown-toggle right-bar-toggle waves-effect waves-light btn btn-link shadow-none" onClick={themeCustomizer.toggle}>

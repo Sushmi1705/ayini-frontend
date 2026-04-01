@@ -799,27 +799,27 @@ const authRoutes = [
   }, {
     path: "/auth/register",
     name: "Register",
-    element: <Register />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/confirm",
     name: "Confirm",
-    element: <Confirm />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/forget-password",
     name: "Forget Password",
-    element: <ForgetPassword />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/signin-signup",
     name: "SignIn-SignUp",
-    element: <SignInSignUp />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/lock-screen",
     name: "Lock Screen",
-    element: <LockScreen />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/logout",
@@ -829,37 +829,37 @@ const authRoutes = [
   }, {
     path: "/auth/login2",
     name: "Login2",
-    element: <Login2 />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/logout2",
     name: "Logout2",
-    element: <Logout2 />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/register2",
     name: "Register2",
-    element: <Register2 />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/confirm2",
     name: "Confirm2",
-    element: <Confirm2 />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/forget-password2",
     name: "Forget Password2",
-    element: <ForgetPassword2 />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/signin-signup2",
     name: "SignIn-SignUp2",
-    element: <SignInSignUp2 />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }, {
     path: "/auth/lock-screen2",
     name: "Lock Screen2",
-    element: <LockScreen2 />,
+    element: <Navigate to="/auth/login" />,
     route: Route
   }];
 

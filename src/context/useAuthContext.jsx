@@ -1,4 +1,4 @@
-import {createContext, useContext, useState} from 'react';
+import {createContext, useContext, useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
 
@@ -19,23 +19,40 @@ export function AuthProvider({
                              }) {
     const navigate = useNavigate();
     const [cookies, setCookie, removeCookie] = useCookies([authSessionKey]);
+    const cookieSession = cookies[authSessionKey];
     const getSession = () => {
-        const fetchedCookie = cookies[authSessionKey];
+        const fetchedCookie = cookieSession;
         if (!fetchedCookie) return; else return fetchedCookie;
     };
     const [user, setUser] = useState(getSession());
+
+    useEffect(() => {
+        if (cookieSession) {
+            setUser(cookieSession);
+        } else if (!cookieSession && user) {
+            setUser(undefined);
+        }
+    }, [cookieSession]);
+
     const saveSession = user => {
-        setCookie(authSessionKey, user);
         setUser(user);
+        setCookie(authSessionKey, user, {
+            path: '/',
+            sameSite: 'lax'
+        });
     };
     const removeSession = () => {
-        removeCookie(authSessionKey);
+        removeCookie(authSessionKey, {
+            path: '/'
+        });
         setUser(undefined);
-        navigate('/auth/login');
+        navigate('/auth/login', {
+            replace: true
+        });
     };
     return <AuthContext.Provider value={{
         user,
-        isAuthenticated: !!cookies[authSessionKey],
+        isAuthenticated: !!(user || cookieSession),
         saveSession,
         removeSession
     }}>

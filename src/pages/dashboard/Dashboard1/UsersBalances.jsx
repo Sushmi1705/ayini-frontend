@@ -64,7 +64,7 @@ const RecentOrders = () => {
                     <td>
                       <span
                         className={classNames("badge", {
-                          "bg-success": order.paymentMethod === "Cash on Delivery",
+                          "bg-success": order.paymentMethod === "Cash on Delivery" || order.paymentMethod === "COD",
                           "bg-info": order.paymentMethod === "Direct Bank Transfer",
                           "bg-warning": order.paymentMethod === "Razorpay",
                         })}

@@ -12,30 +12,22 @@ import logoDark from "@/assets/images/logo-dark.png";
 import logoDark2 from "@/assets/images/logo-dark-2.png";
 import logoLight from "@/assets/images/logo-light.png";
 import logoLight2 from "@/assets/images/logo-light-2.png";
-import { FiUser, FiSettings, FiLock, FiLogOut } from "react-icons/fi";
+import { FiLogOut } from "react-icons/fi";
 import { useLayoutContext } from "@/context/useLayoutContext.jsx";
+import { useAuthContext } from "@/context/useAuthContext.jsx";
 
 /* user box */
 const UserBox = () => {
-  // get the profilemenu
   const ProfileMenus = [{
-    label: "My Account",
-    icon: FiUser,
-    redirectTo: "#"
-  }, {
-    label: "Settings",
-    icon: FiSettings,
-    redirectTo: "#"
-  }, {
-    label: "Lock Screen",
-    icon: FiLock,
-    redirectTo: "/auth/lock-screen"
-  }, {
     label: "Logout",
     icon: FiLogOut,
     redirectTo: "/auth/logout"
   }];
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { user } = useAuthContext();
+  const adminName = user?.name || "Ajith";
+  const adminRole = user?.role || "Admin";
+  const adminContact = user?.email || user?.phone || "Single-admin access";
 
   /*
    * toggle dropdown
@@ -44,23 +36,28 @@ const UserBox = () => {
     setDropdownOpen(!dropdownOpen);
   };
   return <div className="user-box text-center">
-            <img src={profileImg} alt="" title="Mat Helme" className="rounded-circle avatar-md" />
+            <div className="user-box-avatar-wrap">
+              <img src={profileImg} alt="" title={adminName} className="rounded-circle avatar-md" />
+              <span className="user-box-badge">Live</span>
+            </div>
             <Dropdown show={dropdownOpen} onToggle={toggleDropdown}>
                 <Dropdown.Toggle id="dropdown-notification" as="a" onClick={toggleDropdown} className="cursor-pointer text-dark h5 mt-2 mb-1 d-block">
-                    Geneva Kennedy
+                    {adminName}
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="user-pro-dropdown">
                     <div onClick={toggleDropdown}>
                         {(ProfileMenus || []).map((item, index) => {
+            const Icon = item.icon;
             return <Link to={item.redirectTo} className="dropdown-item notify-item" key={index + "-profile-menu"}>
-                                    <i className={`${item.icon} me-1`}></i>
+                                    <Icon className="me-1" />
                                     <span>{item.label}</span>
                                 </Link>;
           })}
                     </div>
                 </Dropdown.Menu>
             </Dropdown>
-            <p className="text-muted">Admin Head</p>
+            <p className="text-muted mb-1">{adminRole}</p>
+            <p className="text-muted small user-box-contact">{adminContact}</p>
         </div>;
 };
 

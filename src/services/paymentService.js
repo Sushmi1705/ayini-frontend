@@ -1,34 +1,23 @@
-// const API_URL = "http://localhost:5000/adminPayment";
-const API_URL = "https://ayini-backend.onrender.com/adminPayment";
+import { fetchJson } from "./apiClient";
 
 export const getAllPayments = async () => {
-  const response = await fetch(API_URL);
-  if (!response.ok) throw new Error("Failed to fetch payments");
-  return await response.json();
+  return fetchJson("/adminPayment");
 };
 
 export const getPaymentById = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch payment by ID");
-  return await response.json();
+  return fetchJson(`/adminPayment/${id}`);
 };
 
 export const filterPaymentsByStatus = async (status) => {
-  const response = await fetch(`${API_URL}?status=${status}`);
-  if (!response.ok) throw new Error("Failed to filter payments by status");
-  return await response.json();
+  return fetchJson(`/adminPayment?status=${status}`);
 };
 
 export const filterPaymentsById = async (id) => {
-  const response = await fetch(`${API_URL}?id=${id}`);
-  if (!response.ok) throw new Error("Failed to filter payments by ID");
-  return await response.json();
+  return fetchJson(`/adminPayment?id=${id}`);
 };
 
 export const filterPaymentsByDateRange = async (from, to) => {
-  const response = await fetch(`${API_URL}?from=${from}&to=${to}`);
-  if (!response.ok) throw new Error("Failed to filter payments by date range");
-  return await response.json();
+  return fetchJson(`/adminPayment?from=${from}&to=${to}`);
 };
 
 export const filterPaymentsByAll = async ({ status, from, to }) => {
@@ -37,7 +26,5 @@ export const filterPaymentsByAll = async ({ status, from, to }) => {
   if (from) queryParams.append("from", from);
   if (to) queryParams.append("to", to);
 
-  const response = await fetch(`${API_URL}?${queryParams.toString()}`);
-  if (!response.ok) throw new Error("Failed to filter payments");
-  return await response.json();
+  return fetchJson(`/adminPayment?${queryParams.toString()}`);
 };

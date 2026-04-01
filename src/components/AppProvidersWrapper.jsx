@@ -5,7 +5,8 @@ const AppProvidersWrapper = ({
   children
 }) => {
   return <CookiesProvider defaultSetOptions={{
-    path: '/'
+    path: '/',
+    sameSite: 'lax'
   }}>
       <AuthProvider>
         <LayoutProvider>

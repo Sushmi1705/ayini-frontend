@@ -45,10 +45,10 @@ const AllRoutes = props => {
                 </Route>
 
                 <Route>
-                    {authProtectedFlattenRoutes.map((route, idx) => <Route path={route.path} element={!isAuthenticated ? <Navigate to={{
+                    {authProtectedFlattenRoutes.map((route, idx) => <Route path={route.path} element={!isAuthenticated ? <Navigate replace to={{
           pathname: "/auth/login",
           // hash:route.path,
-          search: "next=" + route.path
+          search: `?next=${encodeURIComponent(route.path)}`
         }} /> : <Layout {...props}>{route.element}</Layout>} key={idx} />)}
                 </Route>
             </Routes>

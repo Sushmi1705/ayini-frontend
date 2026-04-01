@@ -1,22 +1,16 @@
-
-// const API_URL = "http://localhost:5000/product";
-const API_URL = "https://ayini-backend.onrender.com/product";
+import { buildApiUrl, fetchJson } from "./apiClient";
 
 
 export const getAllProducts = async () => {
-  const response = await fetch(API_URL);
-  if (!response.ok) throw new Error('Failed to fetch products');
-  return response.json();
+  return fetchJson("/product");
 };
 
 export const getProductById = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`);
-  if (!response.ok) throw new Error('Failed to fetch product details');
-  return response.json();
+  return fetchJson(`/product/${id}`);
 };
 
 export const addProduct = async (formData) => {
-  const response = await fetch(`${API_URL}/add`, {
+  const response = await fetch(buildApiUrl("/product/add"), {
     method: 'POST',
     body: formData,
   });
@@ -25,7 +19,7 @@ export const addProduct = async (formData) => {
 };
 
 export const updateProduct = async (id, formData) => {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await fetch(buildApiUrl(`/product/${id}`), {
     method: 'PUT',
     body: formData, // ✅ let the browser set the headers
   });
@@ -35,7 +29,7 @@ export const updateProduct = async (id, formData) => {
 
 
 export const deleteProduct = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await fetch(buildApiUrl(`/product/${id}`), {
     method: 'DELETE',
   });
   if (!response.ok) throw new Error('Failed to delete product');
@@ -44,13 +38,11 @@ export const deleteProduct = async (id) => {
 
 // ✅ Tax APIs
 export const getTax = async () => {
-    const response = await fetch(`${API_URL}/tax`);
-    if (!response.ok) throw new Error('Failed to fetch tax');
-    return response.json(); // returns: { value: ... }
+    return fetchJson("/product/tax");
   };
   
   export const setTax = async (taxValue) => {
-    const response = await fetch(`${API_URL}/tax`, {
+    const response = await fetch(buildApiUrl("/product/tax"), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value: taxValue }),
@@ -60,14 +52,12 @@ export const getTax = async () => {
   };
 
   export async function getShippingSettings() {
-    const response = await fetch(`${API_URL}/getShipping`);
-    if (!response.ok) throw new Error('Failed to fetch shipping');
-    return response.json();
+    return fetchJson("/product/getShipping");
   }
 
   export async function setShippingSettings(settings) {
     try {
-      const response = await fetch(`${API_URL}/setShipping`, {
+      const response = await fetch(buildApiUrl("/product/setShipping"), {
         method: 'POST', // or 'PUT' depending on your backend setup
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +81,7 @@ export const getTax = async () => {
     const formData = new FormData();
     formData.append("image", imageFile);
   
-    const response = await fetch(`${API_URL}/uploadImage`, {
+    const response = await fetch(buildApiUrl("/product/uploadImage"), {
       method: "POST",
       body: formData,
     });

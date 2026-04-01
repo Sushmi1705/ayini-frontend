@@ -1,258 +1,241 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Row, Col, Card } from "react-bootstrap";
-import { Link } from "react-router-dom";
-
-// components
+import { Link, useParams } from "react-router-dom";
+import { getOrderById } from "../../../services/orderService";
 import PageTitle from "../../../components/PageTitle";
-import product1 from "@/assets/images/products/product-1.png";
-import product2 from "@/assets/images/products/product-2.png";
-import product3 from "@/assets/images/products/product-3.png";
-// track order
-const TrackOrder = () => {
-  return <>
-      <div className="track-order-list">
-        <ul className="list-unstyled">
-          <li className="completed">
-            <h5 className="mt-0 mb-1">Order Placed</h5>
-            <p className="text-muted">
-              April 21 2019 <small className="text-muted">07:22 AM</small>{" "}
-            </p>
-          </li>
-          <li className="completed">
-            <h5 className="mt-0 mb-1">Packed</h5>
-            <p className="text-muted">
-              April 22 2019 <small className="text-muted">12:16 AM</small>
-            </p>
-          </li>
-          <li>
-            <span className="active-dot dot"></span>
-            <h5 className="mt-0 mb-1">Shipped</h5>
-            <p className="text-muted">
-              April 22 2019 <small className="text-muted">05:16 PM</small>
-            </p>
-          </li>
-          <li>
-            <h5 className="mt-0 mb-1"> Delivered</h5>
-            <p className="text-muted">Estimated delivery within 3 days</p>
-          </li>
-        </ul>
 
-        <div className="text-center mt-4">
-          <Link to="#" className="btn btn-primary">
-            Show Details
-          </Link>
-        </div>
-      </div>
-    </>;
+const formatCurrency = (value) => `₹${Number(value || 0).toFixed(2)}`;
+
+const formatDateAndTime = (timestamp) => {
+  if (!timestamp || typeof timestamp !== "object" || !("_seconds" in timestamp)) {
+    return { date: "N/A", time: "" };
+  }
+  const dateObj = new Date(timestamp._seconds * 1000);
+  const date = dateObj.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+  const time = dateObj.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return { date, time };
 };
 
 // Item Table
-const Items = ({
-  order
-}) => {
-  return <>
-      <div className="table-responsive">
-        <table className="table table-bordered table-centered mb-0">
-          <thead className="table-light">
-            <tr>
-              <th>Product name</th>
-              <th>Product</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(order.items || []).map((item, index) => {
-            return <tr key={index}>
-                  <th scope="row">{item.name}</th>
-                  <td>
-                    <img src={item.image} alt="" height="32" />
-                  </td>
-                  <td>{item.quantity}</td>
-                  <td>{item.price}</td>
-                  <td>{item.total}</td>
-                </tr>;
+const Items = ({ order }) => {
+  const items = order.items || [];
+  
+  return (
+    <div className="table-responsive">
+      <table className="table table-bordered table-centered mb-0">
+        <thead className="table-light">
+          <tr>
+            <th>Product Name</th>
+            <th>Image</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, index) => {
+            const quantity = Number(item.cartQty || item.quantity || 0);
+            const price = Number(item.unitPrice || item.price || 0);
+            const lineTotal = Number(item.lineTotal || quantity * price);
+            
+            return (
+              <tr key={index}>
+                <th scope="row">{item.name}</th>
+                <td>
+                  <img src={item.image || "/placeholder.png"} alt={item.name} height="32" />
+                </td>
+                <td>{quantity}</td>
+                <td>{formatCurrency(price)}</td>
+                <td>{formatCurrency(lineTotal)}</td>
+              </tr>
+            );
           })}
-            <tr>
-              <th scope="row" colSpan={4} className="text-end">
-                Sub Total :
-              </th>
-              <td>
-                <div className="fw-bold">{order.sub_total}</div>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row" colSpan={4} className="text-end">
-                Shipping Charge :
-              </th>
-              <td>{order.shipping_charge}</td>
-            </tr>
-            <tr>
-              <th scope="row" colSpan={4} className="text-end">
-                Estimated Tax :
-              </th>
-              <td>{order.tax}</td>
-            </tr>
-            <tr>
-              <th scope="row" colSpan={4} className="text-end">
-                Total :
-              </th>
-              <td>
-                <div className="fw-bold"> {order.net_total}</div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </>;
+          <tr>
+            <th scope="row" colSpan={4} className="text-end">
+              Sub Total :
+            </th>
+            <td>
+              <div className="fw-bold">{formatCurrency(order.cartSubtotal)}</div>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" colSpan={4} className="text-end">
+              Shipping Charge :
+            </th>
+            <td>{formatCurrency(order.shipping)}</td>
+          </tr>
+          <tr>
+            <th scope="row" colSpan={4} className="text-end">
+              Estimated Tax :
+            </th>
+            <td>{formatCurrency(order.vat)}</td>
+          </tr>
+          <tr>
+            <th scope="row" colSpan={4} className="text-end">
+              Total :
+            </th>
+            <td>
+              <div className="fw-bold">{formatCurrency(order.total || order.cartSubtotal)}</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
 };
 
 // shipping info
-const ShippingInfo = props => {
-  const details = props.details;
-  return <React.Fragment>
-      <h5 className="font-family-primary fw-semibold">{details.provider}</h5>
-
+const ShippingInfo = ({ details }) => {
+  if (!details) return <p>No shipping details available.</p>;
+  return (
+    <React.Fragment>
+      <h5 className="font-family-primary fw-semibold">{details.firstName} {details.lastName}</h5>
       <p className="mb-2">
-        <span className="fw-semibold me-2">Address:</span> {details.address}
+        <span className="fw-semibold me-2">Address:</span> {details.address}, {details.city}, {details.state} {details.zip}
       </p>
       <p className="mb-2">
         <span className="fw-semibold me-2">Phone:</span> {details.phone}
       </p>
       <p className="mb-0">
-        <span className="fw-semibold me-2">Mobile:</span> {details.mobile}
+        <span className="fw-semibold me-2">Email:</span> {details.email}
       </p>
-    </React.Fragment>;
+    </React.Fragment>
+  );
 };
 
 // billing info
-const BillingInfo = props => {
-  const details = props.details;
-  return <React.Fragment>
+const BillingInfo = ({ details, paymentMethod }) => {
+  if (!details) return <p>No billing details available.</p>;
+  return (
+    <React.Fragment>
       <ul className="list-unstyled mb-0">
         <li>
           <p className="mb-2">
             <span className="fw-semibold me-2">Payment Type:</span>{" "}
-            {details.type}
+            {paymentMethod || "N/A"}
           </p>
           <p className="mb-2">
-            <span className="fw-semibold me-2">Provider:</span>{" "}
-            {details.provider}
+            <span className="fw-semibold me-2">Billing Name:</span>{" "}
+            {details.firstName} {details.lastName}
           </p>
           <p className="mb-2">
-            <span className="fw-semibold me-2">Valid Date:</span>{" "}
-            {details.valid}
-          </p>
-          <p className="mb-0">
-            <span className="fw-semibold me-2">CVV:</span> xxx
+            <span className="fw-semibold me-2">Address:</span>{" "}
+            {details.address}, {details.city}, {details.state} {details.zip}
           </p>
         </li>
       </ul>
-    </React.Fragment>;
+    </React.Fragment>
+  );
 };
 
 // delivery info
-const DeliveryInfo = props => {
-  const details = props.details;
-  return <React.Fragment>
+const DeliveryInfo = ({ order }) => {
+  return (
+    <React.Fragment>
       <div className="text-center">
         <i className="mdi mdi-truck-fast h2 text-muted"></i>
         <h5>
-          {details.provider && <b>{details.provider}</b>}
+          <b>{order.sentToCustomer ? "Sent to Customer" : "Processing"}</b>
         </h5>
         <p className="mb-1">
-          <span className="fw-semibold">Order ID :</span> {details.order_id}
+          <span className="fw-semibold">Order ID :</span> #{order.id?.slice(0, 8).toUpperCase()}
         </p>
         <p className="mb-0">
           <span className="fw-semibold">Payment Mode :</span>{" "}
-          {details.payment_mode}
+          {order.paymentMethod || "N/A"}
         </p>
       </div>
-    </React.Fragment>;
+    </React.Fragment>
+  );
 };
 
 // order details
 const OrderDetails = () => {
-  const order = {
-    id: "#BM31",
-    tracking_id: "894152012012",
-    order_status: "Packed",
-    items: [{
-      id: 1,
-      name: "Polo Navy blue T-shirt",
-      image: product1,
-      quantity: 1,
-      price: "$39",
-      total: "$39"
-    }, {
-      id: 2,
-      name: "Red Hoodie for men",
-      image: product2,
-      quantity: 2,
-      price: "$46",
-      total: "$92"
-    }, {
-      id: 3,
-      name: "Red Hoodie for men",
-      image: product3,
-      quantity: 1,
-      price: "$46",
-      total: "$46"
-    }],
-    sub_total: "$177",
-    shipping_charge: "$24",
-    tax: "$12",
-    net_total: "$213",
-    shipping: {
-      provider: "Stanley Jones",
-      address: "3559 Roosevelt Wilson Lane San Bernardino, CA 92405",
-      phone: "(123) 456-7890 ",
-      mobile: "(+01) 12345 67890"
-    },
-    billing: {
-      type: "Credit Card",
-      provider: "Visa ending in 2851",
-      valid: "02/2020"
-    },
-    delivery: {
-      provider: "UPS Delivery",
-      order_id: "#BM31",
-      payment_mode: "COD"
+  const { id } = useParams();
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        setLoading(true);
+        const data = await getOrderById(id);
+        setOrder(data);
+      } catch (err) {
+        console.error("Failed to fetch order", err);
+        setError("Could not load order details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchOrder();
     }
-  };
-  return <React.Fragment>
-      <PageTitle breadCrumbItems={[{
-      label: "Ecommerce",
-      path: "/apps/ecommerce/order/details"
-    }, {
-      label: "Order Detail",
-      path: "/apps/ecommerce/order/details",
-      active: true
-    }]} title={"Order Detail"} />
+  }, [id]);
+
+  if (loading) {
+    return <div className="text-center mt-5"><div className="spinner-border text-primary" role="status"></div></div>;
+  }
+
+  if (error || !order) {
+    return <div className="text-center mt-5 text-danger">{error || "Order not found."}</div>;
+  }
+
+  return (
+    <React.Fragment>
+      <PageTitle
+        breadCrumbItems={[
+          {
+            label: "Ecommerce",
+            path: "/apps/ecommerce/orders",
+          },
+          {
+            label: "Order Detail",
+            path: `/apps/ecommerce/order/${id}`,
+            active: true,
+          },
+        ]}
+        title={"Order Detail"}
+      />
 
       <Row>
         <Col lg={4}>
           <Card>
             <Card.Body>
-              <h4 className="header-title mb-3">Track Order</h4>
-
+              <h4 className="header-title mb-3">Order Status</h4>
               <Row>
-                <Col lg={6}>
+                <Col lg={12}>
                   <div className="mb-4">
                     <h5 className="mt-0">Order ID:</h5>
-                    <p>{order.id}</p>
+                    <p>#{order.id}</p>
                   </div>
                 </Col>
-                <Col lg={6}>
+                <Col lg={12}>
                   <div className="mb-4">
-                    <h5 className="mt-0">Tracking ID:</h5>
-                    <p>{order.tracking_id}</p>
+                    <h5 className="mt-0">Order Placed:</h5>
+                    <p>
+                      {formatDateAndTime(order.createdAt).date} at {formatDateAndTime(order.createdAt).time}
+                    </p>
+                  </div>
+                </Col>
+                <Col lg={12}>
+                  <div className="mb-1">
+                    <h5 className="mt-0">Status:</h5>
+                    <p className={`badge bg-${order.status === 'Paid' ? 'success' : order.status === 'Pending' ? 'warning' : 'info'} p-2`}>
+                      {order.status || "Pending"}
+                    </p>
                   </div>
                 </Col>
               </Row>
-
-              <TrackOrder />
             </Card.Body>
           </Card>
         </Col>
@@ -260,7 +243,7 @@ const OrderDetails = () => {
         <Col lg={8}>
           <Card>
             <Card.Body>
-              <h4 className="header-title mb-3">Items from Order {order.id}</h4>
+              <h4 className="header-title mb-3">Items from Order #{order.id?.slice(0, 8).toUpperCase()}</h4>
               <Items order={order} />
             </Card.Body>
           </Card>
@@ -272,7 +255,7 @@ const OrderDetails = () => {
           <Card>
             <Card.Body>
               <h4 className="header-title mb-3">Shipping Information</h4>
-              <ShippingInfo details={order.shipping} />
+              <ShippingInfo details={order.shippingDetails} />
             </Card.Body>
           </Card>
         </Col>
@@ -281,7 +264,7 @@ const OrderDetails = () => {
           <Card>
             <Card.Body>
               <h4 className="header-title mb-3">Billing Information</h4>
-              <BillingInfo details={order.billing} />
+              <BillingInfo details={order.billingDetails} paymentMethod={order.paymentMethod} />
             </Card.Body>
           </Card>
         </Col>
@@ -290,11 +273,13 @@ const OrderDetails = () => {
           <Card>
             <Card.Body>
               <h4 className="header-title mb-3">Delivery Info</h4>
-              <DeliveryInfo details={order.delivery} />
+              <DeliveryInfo order={order} />
             </Card.Body>
           </Card>
         </Col>
       </Row>
-    </React.Fragment>;
+    </React.Fragment>
+  );
 };
+
 export default OrderDetails;

@@ -64,7 +64,7 @@ const RevenueHistory = () => {
                     <td>
                       <span className={classNames("badge", {
                         "bg-soft-warning text-warning": item.status === "Pending",
-                        "bg-soft-success text-success": item.status === "Completed",
+                        "bg-soft-success text-success": item.status === "Paid" || item.status === "Completed",
                         "bg-soft-danger text-danger": item.status === "Failed",
                       })}>
                         {item.status}

@@ -1,22 +1,16 @@
-
-// const API_URL = "http://localhost:5000/category";
-const API_URL = "https://ayini-backend.onrender.com/category";
+import { buildApiUrl, fetchJson } from "./apiClient";
 
 
 export const getCategory = async () => {
-  const response = await fetch(API_URL);
-  if (!response.ok) throw new Error('Failed to fetch category');
-  return response.json();
+  return fetchJson("/category");
 };
 
 export const getProductById = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`);
-  if (!response.ok) throw new Error('Failed to fetch product details');
-  return response.json();
+  return fetchJson(`/category/${id}`);
 };
 
 export const addCategory = async (formData) => {
-  const response = await fetch(`${API_URL}/add`, {
+  const response = await fetch(buildApiUrl("/category/add"), {
     method: 'POST',
     body: formData,
   });
@@ -25,7 +19,7 @@ export const addCategory = async (formData) => {
 };
 
 export const updateCategory = async (id, formData) => {
-    const response = await fetch(`${API_URL}/${id}`, {
+    const response = await fetch(buildApiUrl(`/category/${id}`), {
       method: "PUT",
       body: formData,
     });
@@ -48,7 +42,7 @@ export const updateCategory = async (id, formData) => {
 
 
 export const deleteCategory = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await fetch(buildApiUrl(`/category/${id}`), {
     method: 'DELETE',
   });
   if (!response.ok) throw new Error('Failed to delete product');

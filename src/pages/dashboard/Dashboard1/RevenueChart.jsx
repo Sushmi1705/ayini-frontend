@@ -42,7 +42,7 @@ const RevenueChart = () => {
     labels: ["Revenue"]
   };
 
-  const apexData = [Math.round((revenue / 1000) * 100)]; // sample percentage if $1000 is target
+  const apexData = [Math.max(0, Math.min(100, Math.round((revenue / Math.max(revenue, 1)) * 100)))];
 
   return (
     <Card>
@@ -59,7 +59,7 @@ const RevenueChart = () => {
           />
 
           <h5 className="text-muted mt-0">Total sales made</h5>
-          <h2>{revenue.toLocaleString("en-US", { style: "currency", currency: "USD" })}</h2>
+          <h2>{revenue.toLocaleString("en-IN", { style: "currency", currency: "INR" })}</h2>
 
           <p className="text-muted w-75 mx-auto sp-line-2">
             Revenue generated from all sales till date.
@@ -73,7 +73,7 @@ const RevenueChart = () => {
               <ChartStatistics
                 title="Last week"
                 icon={lastWeekRevenue >= 0 ? "fe-arrow-up" : "fe-arrow-down"}
-                stats={lastWeekRevenue.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                stats={lastWeekRevenue.toLocaleString("en-IN", { style: "currency", currency: "INR" })}
                 variant={lastWeekRevenue >= 0 ? "success" : "danger"}
               />
             </Col>
@@ -81,7 +81,7 @@ const RevenueChart = () => {
               <ChartStatistics
                 title="Last Month"
                 icon={lastMonthRevenue >= 0 ? "fe-arrow-up" : "fe-arrow-down"}
-                stats={lastMonthRevenue.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                stats={lastMonthRevenue.toLocaleString("en-IN", { style: "currency", currency: "INR" })}
                 variant={lastMonthRevenue >= 0 ? "success" : "danger"}
               />
             </Col>

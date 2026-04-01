@@ -22,6 +22,17 @@ import {
 const truncate = (text, limit = 40) =>
   text?.length > limit ? text.substring(0, limit) + "..." : text;
 
+// ✅ Helper function to convert base64 image strings properly to Blobs for Firebase parsing
+const base64ToBlob = (base64, mime) => {
+  const byteString = atob(base64.split(',')[1]);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mime });
+};
+
 const Products = () => {
   const navigate = useNavigate();
 

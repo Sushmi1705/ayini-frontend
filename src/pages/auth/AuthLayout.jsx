@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import LogoDark from "@/assets/images/logo-dark.png";
 import LogoLight from "@/assets/images/logo-light.png";
 const AuthLayout = ({
@@ -20,22 +19,24 @@ const AuthLayout = ({
         <Container>
           <Row className="justify-content-center">
             <Col md={8} lg={6} xl={isCombineForm ? 9 : 4}>
-              <Card className="bg-pattern">
+              <Card className="bg-pattern admin-auth-card border-0 shadow-lg">
                 <Card.Body className="p-4">
                   <div className="text-center w-75 m-auto">
                     <div className="auth-brand">
-                      <Link to="/" className="logo logo-dark text-center">
+                      <a href="/auth/login" className="logo logo-dark text-center">
                         <span className="logo-lg">
                           <img src={LogoDark} alt="" height="22" />
                         </span>
-                      </Link>
+                      </a>
 
-                      <Link to="/" className="logo logo-light text-center">
+                      <a href="/auth/login" className="logo logo-light text-center">
                         <span className="logo-lg">
                           <img src={LogoLight} alt="" height="22" />
                         </span>
-                      </Link>
+                      </a>
                     </div>
+                    <div className="admin-auth-kicker">Secure Admin Access</div>
+                    <h3 className="admin-auth-title">Sri Ayini Control Room</h3>
                     <p className="text-muted mb-4 mt-3">{helpText}</p>
                   </div>
                   {children}
@@ -50,10 +51,7 @@ const AuthLayout = ({
       </div>
 
       <footer className="footer footer-alt">
-        2015 - {new Date().getFullYear()} &copy; uBold theme by{" "}
-        <Link to="#" className="text-white-50">
-          Coderthemes
-        </Link>
+        {new Date().getFullYear()} &copy; Sri Ayini admin access
       </footer>
     </>;
 };

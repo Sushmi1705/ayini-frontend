@@ -1,143 +1,149 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import * as yup from 'yup';
-import { useAuthContext } from '@/context/useAuthContext';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth, firestore } from '../../firebase'; // Import Firestore and Firebase Auth
-import { getMessaging, getToken } from "firebase/messaging";
-import { doc, getDoc, setDoc, serverTimestamp, arrayUnion } from 'firebase/firestore'; // Import modular methods
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuthContext } from "@/context/useAuthContext";
+import { buildApiUrl } from "@/services/apiClient";
 
-// Get the messaging instance
-const messaging = getMessaging();
-
-// Function to retrieve the device token
-const getDeviceToken = async () => {
-  console.log('16-------------------------------');
-  try {
-    const token = await getToken(messaging, {
-      vapidKey: 'BPDEnbADRV8tMemcJdap87z5fOmPWoKwZn0ZQeawPbS_Hy6HO_i6xXCSo3lGjQ18kmT9DT9WR4ClzHVOW2Yipe0', // Replace with your VAPID key
-    });
-    console.log('20----------', token);
-    if (token) {
-      console.log("Device Token: ", token);
-      return token;
-    } else {
-      console.log("No device token available.");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error getting device token: ", error);
-    return null;
-  }
-};
+const API_BASE_URL = buildApiUrl("/admin");
 
 const useLogin = () => {
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState("choose");
+  const [method, setMethod] = useState("email");
+  const [identifier, setIdentifier] = useState("");
+  const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [adminConfig, setAdminConfig] = useState({
+    email: "ajithmano14@gmail.com",
+    phone: "+919444488440",
+  });
   const navigate = useNavigate();
   const { saveSession } = useAuthContext();
   const [searchParams] = useSearchParams();
 
-  const loginFormSchema = yup.object({
-    email: yup.string().email('Please enter a valid email').required('Please enter your email'),
-    password: yup.string().required('Please enter your password'),
-  });
-
-  const { control, handleSubmit, setError } = useForm({
-    resolver: yupResolver(loginFormSchema),
-    defaultValues: {
-      email: 'user@demo.com',
-      password: '123456',
-    },
-  });
-
   const redirectUser = () => {
-    const redirectLink = searchParams.get('redirectTo');
+    const redirectLink = searchParams.get("redirectTo") || searchParams.get("next");
     if (redirectLink) navigate(redirectLink);
-    else navigate('/dashboard');
+    else navigate("/dashboard");
   };
 
-  const storeUserInFirestore = async (user) => {
-    console.log('64-------------------------------');
-    try {
-      const deviceToken = await getDeviceToken();
-      console.log('67-----------', deviceToken);
-      if (!deviceToken) return;
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/config`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success) {
+          setAdminConfig({
+            email: data.email,
+            phone: data.phone,
+          });
+          if (!identifier) {
+            setIdentifier(data.email);
+          }
+        }
+      })
+      .catch(() => undefined);
+  }, []);
 
-      const userRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userRef);
-
-      // Existing tokens array or empty array
-      const existingTokens = userDoc.exists() ? userDoc.data()?.deviceTokens || [] : [];
-
-      // Only update if token doesn't already exist
-      if (!existingTokens.includes(deviceToken)) {
-        // Add new device token to the array and update lastLogin
-        await setDoc(userRef, {
-          email: user.email,
-          lastLogin: serverTimestamp(),
-          deviceTokens: arrayUnion(deviceToken), // Store the device token in an array
-        }, { merge: true });
-
-        console.log('✅ New device token added and lastLogin updated');
-      } else {
-        // Just update the lastLogin timestamp if token already exists
-        await setDoc(userRef, {
-          lastLogin: serverTimestamp(),
-        }, { merge: true });
-
-        console.log('✅ Existing token found, only lastLogin updated');
-      }
-    } catch (error) {
-      console.error('❌ Error storing user data in Firestore:', error);
-    }
+  const chooseMethod = (selectedMethod) => {
+    setMethod(selectedMethod);
+    setIdentifier(selectedMethod === "email" ? adminConfig.email : adminConfig.phone);
+    setOtp("");
+    setError("");
+    setSuccessMessage("");
+    setStep("request");
   };
 
-  const login = handleSubmit(async (values) => {
-    console.log('103---------------------------');
+  const sendOtp = async () => {
     setLoading(true);
+    setError("");
+    setSuccessMessage("");
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-      const user = userCredential.user;
+      const endpoint = method === "email" ? "send-email-otp" : "send-phone-otp";
+      const payload = method === "email" ? { email: identifier } : { phoneNumber: identifier };
 
-      // Save token or user data
-      const token = await user.getIdToken();
-
-      saveSession({
-        token,
-        email: user.email,
-        uid: user.uid,
+      const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
-      // Store user data in Firestore including the device token
-      await storeUserInFirestore(user);
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || data.message || "Failed to send OTP.");
+      }
 
-      redirectUser();
-    } catch (error) {
-      const errorMsg =
-        error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password'
-          ? 'Invalid email or password'
-          : 'Login failed. Please try again.';
-
-      setError('email', {
-        type: 'custom',
-        message: errorMsg,
-      });
-
-      setError('password', {
-        type: 'custom',
-        message: errorMsg,
-      });
+      setSuccessMessage(data.message || "OTP sent successfully.");
+      setStep("verify");
+    } catch (sendError) {
+      setError(sendError.message || "Failed to send OTP.");
     } finally {
       setLoading(false);
     }
-  });
+  };
+
+  const verifyOtp = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccessMessage("");
+
+    try {
+      const endpoint = method === "email" ? "verify-email-otp" : "verify-phone-otp";
+      const payload = method === "email"
+        ? { email: identifier, otp }
+        : { phoneNumber: identifier, otp };
+
+      const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || data.message || "OTP verification failed.");
+      }
+
+      saveSession({
+        token: `admin-session-${Date.now()}`,
+        ...data.user,
+      });
+
+      redirectUser();
+    } catch (verifyError) {
+      setError(verifyError.message || "OTP verification failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     loading,
-    login,
-    control,
+    step,
+    method,
+    identifier,
+    otp,
+    error,
+    successMessage,
+    adminConfig,
+    setIdentifier,
+    setOtp,
+    chooseMethod,
+    sendOtp,
+    verifyOtp,
+    backToChoose: () => {
+      setStep("choose");
+      setOtp("");
+      setError("");
+      setSuccessMessage("");
+    },
+    backToRequest: () => {
+      setStep("request");
+      setOtp("");
+      setError("");
+      setSuccessMessage("");
+    },
   };
 };
 

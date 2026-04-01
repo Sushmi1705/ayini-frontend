@@ -25,8 +25,8 @@ const Customers = () => {
       const customersWithAddresses = res.map((cust) => ({
         ...cust,
         addresses: cust.addresses || [],
-        phone: cust.contact || "N/A",
-        name: cust.firstName + " " + cust.lastName || "Unknown",
+        phone: cust.phone || cust.contact || "N/A",
+        name: `${cust.firstName || ""} ${cust.lastName || ""}`.trim() || cust.name || "Unknown",
         orders: cust.totalOrders || 0,
         last_order: formatDateAndTime(cust.lastOrder),
         status: "Active",
